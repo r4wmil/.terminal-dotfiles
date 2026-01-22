@@ -42,6 +42,10 @@ CONFIGS=$HOME/.terminal-dotfiles/config
 hascmd "git"  && git config --global include.path ~/.terminal-dotfiles/config/gitconfig
 hascmd "zsh"  && sym "$CONFIGS/zshrc" "$HOME" ".zshrc"
 hascmd "nvim" && sym "$CONFIGS/nvim/init.lua" "$HOME/.config/nvim" "init.lua"
+if [ ! -z $TERMUX__PREFIX ]; then
+	mv $HOME/.termux $HOME/.termux.bak
+	sym "$CONFIGS/termux/termux.properties" "$HOME/.termux"
+fi
 
 # DWM
 if hascmd "dwm"; then
