@@ -40,7 +40,10 @@ CONFIGS=$HOME/.terminal-dotfiles/config
 
 # Terminal
 hascmd "git"  && git config --global include.path ~/.terminal-dotfiles/config/gitconfig
-hascmd "zsh"  && sym "$CONFIGS/zshrc" "$HOME" ".zshrc"
+if hascmd "zsh"; then
+	[ -z $TERMUX__PREFIX ] && chsh -s /bin/zsh || chsh -s zsh
+	sym "$CONFIGS/zshrc" "$HOME" ".zshrc"
+fi
 hascmd "nvim" && sym "$CONFIGS/nvim/init.lua" "$HOME/.config/nvim" "init.lua"
 if [ ! -z $TERMUX__PREFIX ]; then
 	mv $HOME/.termux $HOME/.termux.bak
