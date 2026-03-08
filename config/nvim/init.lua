@@ -32,35 +32,38 @@ vim.cmd [[
 ]]
 
 --- LSP ---
-local config = {
-	on_attach = function(client, bufnr)
-		local opts = { buffer = bufnr, noremap = true, silent = true }
-		vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-		vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-		vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-		vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-		vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-		vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, opts)
-		vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
-		vim.keymap.set('n', ';rn', vim.lsp.buf.rename, opts)
-		vim.keymap.set({'n', 'v'}, ';ca', vim.lsp.buf.code_action, opts)
-		vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
-		vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
-		vim.keymap.set('n', ';e', vim.diagnostic.open_float, opts)
-		vim.keymap.set('n', ';q', vim.diagnostic.setloclist, opts)
-		vim.keymap.set({'n', 'v'}, ';f', vim.lsp.buf.format, opts)
-		vim.keymap.set('n', ';q', vim.diagnostic.setloclist, opts)
-		vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-	end,
-	cmd = { 'clangd' },
-}
-vim.lsp.config('clangd', config)
-vim.lsp.enable('clangd')
+vim.opt.modeline = false
+vim.api.nvim_create_user_command("LspOn", function()
+  vim.lsp.enable("clangd")
+end, { desc = "Enable & attach clangd LSP" })
 
--- Autocompletion ---
-vim.opt.completeopt = {'menuone', 'noselect', 'noinsert'}
-vim.opt.shortmess:append('c') -- Shorter messages for better UX
+vim.lsp.config("clangd", {
+  cmd = { "clangd", "--background-index", "--clang-tidy" },  -- add flags you like
+  root_markers = {
+    ".clangd",
+    "compile_commands.json",
+    "compile_flags.txt",
+    "build/compile_commands.json",   -- common CMake path
+  },
+  filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
+  capabilities = vim.lsp.protocol.make_client_capabilities(), -- or your cmp capabilities
+})
 
--- Use Ctrl+P/N for completion navigation
-vim.api.nvim_set_keymap('i', '<C-p>', '<C-x><C-o>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('i', '<C-n>', '<C-x><C-o>', { noremap = true, silent = true })
+-- Optional: very basic keymaps (only active after LspOn + attachment)
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    local bufnr = args.buf
+    local map = function(keys, func, desc)
+      vim.keymap.set("n", keys, func, { buffer = bufnr, desc = "LSP: " .. desc })
+    end
+
+    map("gd", vim.lsp.buf.definition,       "Go to definition")
+    map("gD", vim.lsp.buf.declaration,      "Go to declaration")
+    map("gi", vim.lsp.buf.implementation,   "Go to implementation")
+    map("gr", vim.lsp.buf.references,       "List references")
+    map("gy", vim.lsp.buf.type_definition,  "Go to type definition")
+    map("<leader>rn", vim.lsp.buf.rename,   "Rename symbol")
+    map("<leader>ca", vim.lsp.buf.code_action, "Code action")
+    map("K",  vim.lsp.buf.hover,            "Hover documentation")
+  end,
+})
