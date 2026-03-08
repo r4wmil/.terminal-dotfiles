@@ -57,13 +57,17 @@ vim.api.nvim_create_autocmd("LspAttach", {
       vim.keymap.set("n", keys, func, { buffer = bufnr, desc = "LSP: " .. desc })
     end
 
-    map("gd", vim.lsp.buf.definition,       "Go to definition")
-    map("gD", vim.lsp.buf.declaration,      "Go to declaration")
-    map("gi", vim.lsp.buf.implementation,   "Go to implementation")
-    map("gr", vim.lsp.buf.references,       "List references")
-    map("gy", vim.lsp.buf.type_definition,  "Go to type definition")
-    map("<leader>rn", vim.lsp.buf.rename,   "Rename symbol")
+    map("gd", vim.lsp.buf.definition, "Go to definition")
+    map("gD", vim.lsp.buf.declaration, "Go to declaration")
+    map("gi", vim.lsp.buf.implementation, "Go to implementation")
+    map("gr", vim.lsp.buf.references, "List references")
+    map("gy", vim.lsp.buf.type_definition, "Go to type definition")
+    map("<leader>rn", vim.lsp.buf.rename, "Rename symbol")
     map("<leader>ca", vim.lsp.buf.code_action, "Code action")
-    map("K",  vim.lsp.buf.hover,            "Hover documentation")
+    map(";i",  vim.lsp.buf.hover, "Hover documentation")
+    map("K", vim.diagnostic.open_float, "Hover diagnostic")
+		vim.bo[bufnr].omnifunc = "v:lua.vim.lsp.omnifunc"
+		vim.keymap.set('i', '<C-p>', '<C-x><C-o>', { buffer = bufnr, desc = 'Trigger LSP omnifunc' })
+		vim.keymap.set('i', '<C-n>', '<C-x><C-o>', { buffer = bufnr, desc = 'Trigger LSP omnifunc' })
   end,
 })
