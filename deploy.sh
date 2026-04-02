@@ -49,3 +49,4 @@ if [ ! -z $TERMUX__PREFIX ]; then
 	mv $HOME/.termux $HOME/.termux.bak
 	sym "$CONFIGS/termux/termux.properties" "$HOME/.termux"
 fi
+hascmd "tmux" && sym "$CONFIGS/tmux.conf" "$HOME" ".tmux.conf"
