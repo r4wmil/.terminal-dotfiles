@@ -32,42 +32,42 @@ vim.cmd [[
 ]]
 
 --- LSP ---
-vim.opt.modeline = false
-vim.api.nvim_create_user_command("LspOn", function()
-  vim.lsp.enable("clangd")
-end, { desc = "Enable & attach clangd LSP" })
+if vim.fn.executable("clangd") == 1 then
+	vim.opt.modeline = false
+	vim.api.nvim_create_user_command("LspOn", function()
+		vim.lsp.enable("clangd")
+	end, { desc = "Enable & attach clangd LSP" })
+	vim.lsp.config("clangd", {
+		cmd = { "clangd", "--background-index", "--clang-tidy" },  -- add flags you like
+		root_markers = {
+			".clangd",
+			"compile_commands.json",
+			"compile_flags.txt",
+			"build/compile_commands.json",   -- common CMake path
+		},
+		filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
+		capabilities = vim.lsp.protocol.make_client_capabilities(), -- or your cmp capabilities
+	})
+	-- Optional: very basic keymaps (only active after LspOn + attachment)
+	vim.api.nvim_create_autocmd("LspAttach", {
+		callback = function(args)
+			local bufnr = args.buf
+			local map = function(keys, func, desc)
+				vim.keymap.set("n", keys, func, { buffer = bufnr, desc = "LSP: " .. desc })
+			end
 
-vim.lsp.config("clangd", {
-  cmd = { "clangd", "--background-index", "--clang-tidy" },  -- add flags you like
-  root_markers = {
-    ".clangd",
-    "compile_commands.json",
-    "compile_flags.txt",
-    "build/compile_commands.json",   -- common CMake path
-  },
-  filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
-  capabilities = vim.lsp.protocol.make_client_capabilities(), -- or your cmp capabilities
-})
-
--- Optional: very basic keymaps (only active after LspOn + attachment)
-vim.api.nvim_create_autocmd("LspAttach", {
-  callback = function(args)
-    local bufnr = args.buf
-    local map = function(keys, func, desc)
-      vim.keymap.set("n", keys, func, { buffer = bufnr, desc = "LSP: " .. desc })
-    end
-
-    map("gd", vim.lsp.buf.definition, "Go to definition")
-    map("gD", vim.lsp.buf.declaration, "Go to declaration")
-    map("gi", vim.lsp.buf.implementation, "Go to implementation")
-    map("gr", vim.lsp.buf.references, "List references")
-    map("gy", vim.lsp.buf.type_definition, "Go to type definition")
-    map("<leader>rn", vim.lsp.buf.rename, "Rename symbol")
-    map("<leader>ca", vim.lsp.buf.code_action, "Code action")
-    map(";i",  vim.lsp.buf.hover, "Hover documentation")
-    map("K", vim.diagnostic.open_float, "Hover diagnostic")
-		vim.bo[bufnr].omnifunc = "v:lua.vim.lsp.omnifunc"
-		vim.keymap.set('i', '<C-p>', '<C-x><C-o>', { buffer = bufnr, desc = 'Trigger LSP omnifunc' })
-		vim.keymap.set('i', '<C-n>', '<C-x><C-o>', { buffer = bufnr, desc = 'Trigger LSP omnifunc' })
-  end,
-})
+			map("gd", vim.lsp.buf.definition, "Go to definition")
+			map("gD", vim.lsp.buf.declaration, "Go to declaration")
+			map("gi", vim.lsp.buf.implementation, "Go to implementation")
+			map("gr", vim.lsp.buf.references, "List references")
+			map("gy", vim.lsp.buf.type_definition, "Go to type definition")
+			map("<leader>rn", vim.lsp.buf.rename, "Rename symbol")
+			map("<leader>ca", vim.lsp.buf.code_action, "Code action")
+			map(";i",  vim.lsp.buf.hover, "Hover documentation")
+			map("K", vim.diagnostic.open_float, "Hover diagnostic")
+			vim.bo[bufnr].omnifunc = "v:lua.vim.lsp.omnifunc"
+			vim.keymap.set('i', '<C-p>', '<C-x><C-o>', { buffer = bufnr, desc = 'Trigger LSP omnifunc' })
+			vim.keymap.set('i', '<C-n>', '<C-x><C-o>', { buffer = bufnr, desc = 'Trigger LSP omnifunc' })
+		end,
+	})
+end
