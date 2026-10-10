@@ -3,6 +3,7 @@
 # PATH
 export PATH="/sbin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
+export PATH="$PATH:/mnt/c/Program Files/usbipd-win"
 export VISUAL=nvim
 export EDITOR="$VISUAL"
 export TERM=xterm-256color
